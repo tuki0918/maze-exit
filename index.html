@@ -15,16 +15,13 @@
     <link rel="stylesheet" href="/src/style.css" />
   </head>
   <body>
+    <!-- 重なり順: 背景 → 時間・手数の文字 → 迷路。迷路は常に文字より手前に描かれる -->
+    <canvas id="bg"></canvas>
     <canvas id="c"></canvas>
 
     <header id="hud">
       <div id="timer" aria-label="Elapsed time"></div>
     </header>
-
-    <div id="hint">
-      <strong>Tilt the maze. The drop falls down the screen.</strong>
-      <span id="hintKeys">Drag to rotate · Shift+drag or Q / E to roll · Scroll to zoom</span>
-    </div>
 
     <footer id="replay" class="dock facet" hidden>
       <button id="repPlay" class="word">Pause</button>
@@ -42,13 +39,19 @@
     <div id="status">
       <div id="moves">0 moves</div>
       <div id="info"></div>
+      <div id="hint">
+        <strong>Tilt the maze. The drop falls down the screen.</strong>
+        <span id="hintKeys">Drag to rotate · Shift+drag or Q / E to roll · Scroll to zoom</span>
+      </div>
     </div>
 
-    <div id="side">
-      <button id="railToggle" class="facet" aria-controls="toolbar" aria-expanded="true">
-        <svg viewBox="0 0 24 24"><path d="M9 5l7 7-7 7" /></svg>
+    <div id="side" class="facet">
+      <button id="railToggle" aria-controls="toolbar" aria-expanded="true">
+        <span class="burger"><i></i><i></i><i></i></span>
+        <span id="railLabel">Close</span>
       </button>
-      <nav id="toolbar" class="facet">
+      <div id="toolbarWrap">
+      <nav id="toolbar">
       <button id="btnRestart" title="Restart (R)">
         <svg viewBox="0 0 24 24"><path d="M4.5 12a7.5 7.5 0 1 0 2.4-5.5" /><path d="M4.5 4.5v4.8h4.8" /></svg>
         <span>Restart</span>
@@ -66,6 +69,7 @@
         <span>Display</span>
       </button>
       </nav>
+      </div>
     </div>
 
     <div id="scrim"></div>
@@ -129,8 +133,10 @@
     <aside id="settings" class="panel facet" hidden>
       <div class="panel-head">
         <h2>Display</h2>
-        <button id="closeSettings" class="word">Done</button>
       </div>
+      <button id="closeSettings" class="x" aria-label="Close">
+        <svg viewBox="0 0 24 24"><path d="M7 7l10 10M17 7 7 17" /></svg>
+      </button>
       <div class="field">
         <span class="label">Maze look</span>
         <div class="seg" id="style">

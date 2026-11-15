@@ -111,13 +111,17 @@ const particles = new Particles();
 scene.add(particles.points);
 
 // 背景（三角形の面 + 結晶）。カメラに固定するので迷路を回しても動かない
-scene.add(new THREE.HemisphereLight(0xffffff, 0x4fd0f5, 2.2));
+// 迷路とは別のキャンバスに描く。間に時間・手数の文字を挟み、迷路が常に文字より手前に来るようにする
+const bgCanvas = $<HTMLCanvasElement>('bg');
+const bgRenderer = new THREE.WebGLRenderer({ canvas: bgCanvas, antialias: true });
+const bgScene = new THREE.Scene();
+const bgCamera = new THREE.PerspectiveCamera(camera.fov, 1, 1, 800);
+bgScene.add(new THREE.HemisphereLight(0xffffff, 0x4fd0f5, 2.2));
 const sun = new THREE.DirectionalLight(0xffffff, 1.4);
 sun.position.set(1, 2, 3);
-scene.add(sun);
+bgScene.add(sun);
 const backdrop = new Backdrop(camera.fov);
-camera.add(backdrop.group);
-scene.add(camera);
+bgScene.add(backdrop.group);
 
 const controls = new Controls(canvas);
 const sfx = new Sfx();
@@ -149,6 +153,8 @@ let pause = 0;
 /** 各マスから出口へ向かう方向 */
 let toExit = new Int8Array(0);
 let baseDist = 30;
+let fitScale = 0.8;
+let hudZoom = 1;
 /** 通過点（ローカル座標）。points[i] → points[i+1] が i 手目 */
 let points: THREE.Vector3[] = [];
 
@@ -452,12 +458,22 @@ function fmt(sec: number): string {
   return `${String(m).padStart(2, '0')}:${s.toFixed(2).padStart(5, '0')}`;
 }
 
+/** 画面上の迷路の半径を CSS に渡す。時間は迷路のすぐ上、手数とモードはすぐ下に置かれる */
+function layoutHud(): void {
+  const h = window.innerHeight;
+  const half = THREE.MathUtils.degToRad(camera.fov / 2);
+  const r = ((h / 2) * Math.cos(half) * fitScale * 0.86) / controls.zoom;
+  hudZoom = controls.zoom;
+  document.documentElement.style.setProperty('--maze-r', `${Math.round(Math.min(r, h / 2 - 104))}px`);
+}
+
 function fitCamera(): void {
   const aspect = camera.aspect;
   const radius = maze.n * (cfg.shape === 'cube' ? 0.87 : 0.62) + 0.8;
   const half = THREE.MathUtils.degToRad(camera.fov / 2);
-  const dist = radius / Math.sin(half) / Math.min(0.82, aspect * 0.8);
+  const dist = radius / Math.sin(half) / (fitScale = Math.min(0.82, aspect * 0.8));
   baseDist = dist;
+  layoutHud();
   camera.position.set(0, 0, dist * controls.zoom);
   camera.updateProjectionMatrix();
 }
@@ -469,6 +485,11 @@ function applyGfx(): void {
   canvas.classList.toggle('pixel', settings.gfx === 'dot');
   renderer.setPixelRatio(ratio);
   renderer.setSize(w, h, false);
+  bgCanvas.classList.toggle('pixel', settings.gfx === 'dot');
+  bgRenderer.setPixelRatio(ratio);
+  bgRenderer.setSize(w, h, false);
+  bgCamera.aspect = w / h;
+  bgCamera.updateProjectionMatrix();
   camera.aspect = w / h;
   backdrop.resize(w / h);
   liquid.setMode(settings.gfx === 'dot' ? 'dot' : 'fluid');
@@ -520,6 +541,7 @@ function frame(now: number): void {
   const dt = Math.min(0.05, (now - last) / 1000);
   last = now;
   tick(dt);
+  bgRenderer.render(bgScene, bgCamera);
   renderer.render(scene, camera);
   requestAnimationFrame(frame);
 }
@@ -569,6 +591,7 @@ function tick(dt: number): void {
   guide.update(time);
   backdrop.update(time, dt);
   camera.position.z = baseDist * controls.zoom;
+  if (controls.zoom !== hudZoom) layoutHud();
 
   const ts = fmt(elapsed);
   if (ts !== shownTimer) setTimer((shownTimer = ts));
@@ -608,12 +631,20 @@ function readForm(): Config {
   };
 }
 
+/** 開いているパネルに対応するオプションを選択状態にする */
+function syncRail(): void {
+  $('btnMenu').setAttribute('aria-pressed', String(!$('menu').hidden));
+  $('btnSettings').setAttribute('aria-pressed', String(!$('settings').hidden));
+}
+
 function showMenu(open: boolean): void {
   menuOpen = open;
   $('menu').hidden = !open;
   $('hint').hidden = open;
   $('scrim').hidden = !open;
+  syncRail();
   if (open) $('settings').hidden = true;
+  syncRail();
 }
 
 function initUi(): void {
@@ -639,7 +670,8 @@ function initUi(): void {
     $('side').classList.toggle('collapsed', !open);
     const t = $('railToggle');
     t.setAttribute('aria-expanded', String(open));
-    t.title = open ? 'Hide menu (M)' : 'Show menu (M)';
+    t.title = open ? 'Close menu (M)' : 'Open menu (M)';
+    $('railLabel').textContent = open ? 'Close' : 'Menu';
     saveSettings();
   };
   setRail(settings.rail !== false);
@@ -688,6 +720,7 @@ function initUi(): void {
     const p = $('settings');
     p.hidden = open === undefined ? !p.hidden : !open;
     if (!p.hidden) showMenu(false);
+    syncRail();
   };
   $('btnSettings').onclick = () => toggleSettings();
   $('closeSettings').onclick = () => toggleSettings(false);
