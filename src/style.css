@@ -589,6 +589,11 @@ input[type='range']::-moz-range-thumb {
   animation: rise 0.5s var(--ease);
 }
 
+.menu-scroll,
+.menu-actions {
+  display: contents;
+}
+
 @keyframes rise {
   from {
     opacity: 0;
@@ -831,6 +836,62 @@ input[type='range']::-moz-range-thumb {
       opacity: 0;
       transform: translate(-50%, calc(-50% + 30px));
     }
+  }
+}
+
+@media (width < 700px), (pointer: coarse) and (height < 700px) {
+  body:has(#menu:not([hidden])) {
+    --maze-preview-height: 33.333dvh;
+  }
+
+  body:has(#menu:not([hidden])) #c {
+    top: var(--safe-t);
+    height: calc(var(--maze-preview-height) - var(--safe-t));
+  }
+
+  body:has(#menu:not([hidden])) :is(#hud, #status, #side) {
+    visibility: hidden;
+  }
+
+  #scrim {
+    background: transparent;
+  }
+
+  #menu {
+    max-height: calc(100dvh - var(--maze-preview-height));
+    padding: 0;
+    gap: 0;
+    overflow: hidden;
+  }
+
+  .menu-scroll {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    overflow-y: auto;
+    overscroll-behavior-y: contain;
+    padding: 18px 22px 12px;
+  }
+
+  #menu .x {
+    top: 16px;
+    right: 22px;
+  }
+
+  .menu-actions {
+    flex: none;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    padding: 8px 22px calc(8px + var(--safe-b));
+    border-top: 1px solid var(--line);
+  }
+
+  .menu-actions .cta {
+    margin: 0;
+    min-height: 48px;
   }
 }
 

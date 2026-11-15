@@ -82,59 +82,63 @@
     <div id="scrim"></div>
 
     <section id="menu" class="panel facet">
-      <button id="menuClose" class="x" aria-label="Close">
-        <svg viewBox="0 0 24 24"><path d="M7 7l10 10M17 7 7 17" /></svg>
-      </button>
-      <div class="mark">
-        <svg class="drop" viewBox="0 0 40 48" aria-hidden="true">
-          <path class="f1" d="M20 2 6 25l4 13 10 8z" />
-          <path class="f2" d="M20 2l14 23-4 13-10 8z" />
-          <path class="f3" d="M20 2 6 25l14-5 14 5z" />
-        </svg>
-        <div class="wordmark"><b>Liquid</b><span>Labyrinth</span></div>
-      </div>
-      <p class="lead">Tilt the maze. Gravity pulls the drop down the screen. Reach the yellow exit.</p>
+      <div class="menu-scroll">
+        <button id="menuClose" class="x" aria-label="Close">
+          <svg viewBox="0 0 24 24"><path d="M7 7l10 10M17 7 7 17" /></svg>
+        </button>
+        <div class="mark">
+          <svg class="drop" viewBox="0 0 40 48" aria-hidden="true">
+            <path class="f1" d="M20 2 6 25l4 13 10 8z" />
+            <path class="f2" d="M20 2l14 23-4 13-10 8z" />
+            <path class="f3" d="M20 2 6 25l14-5 14 5z" />
+          </svg>
+          <div class="wordmark"><b>Liquid</b><span>Labyrinth</span></div>
+        </div>
+        <p class="lead">Tilt the maze. Gravity pulls the drop down the screen. Reach the yellow exit.</p>
 
-      <div class="field">
-        <span class="label">Difficulty</span>
-        <div class="seg" id="difficulty">
-          <button data-value="easy">Easy</button>
-          <button data-value="normal">Normal</button>
+        <div class="field">
+          <span class="label">Difficulty</span>
+          <div class="seg" id="difficulty">
+            <button data-value="easy">Easy</button>
+            <button data-value="normal">Normal</button>
+          </div>
+          <p class="note" id="diffNote"></p>
         </div>
-        <p class="note" id="diffNote"></p>
-      </div>
-      <div class="field">
-        <span class="label">Size</span>
-        <div class="seg" id="size">
-          <button data-value="3">3</button>
-          <button data-value="5">5</button>
-          <button data-value="7">7</button>
-          <button data-value="9">9</button>
-          <button data-value="11">11</button>
-          <button data-value="13">13</button>
+        <div class="field">
+          <span class="label">Size</span>
+          <div class="seg" id="size">
+            <button data-value="3">3</button>
+            <button data-value="5">5</button>
+            <button data-value="7">7</button>
+            <button data-value="9">9</button>
+            <button data-value="11">11</button>
+            <button data-value="13">13</button>
+          </div>
         </div>
-      </div>
-      <div class="field">
-        <span class="label">Shape</span>
-        <div class="seg" id="shape">
-          <button data-value="cube">Cube</button>
-          <button data-value="sphere">Sphere</button>
-          <button data-value="diamond">Diamond</button>
+        <div class="field">
+          <span class="label">Shape</span>
+          <div class="seg" id="shape">
+            <button data-value="cube">Cube</button>
+            <button data-value="sphere">Sphere</button>
+            <button data-value="diamond">Diamond</button>
+          </div>
         </div>
-      </div>
-      <div class="field">
-        <label class="label" for="seed">Seed <i>same seed, same maze</i></label>
-        <div class="seedrow">
-          <input id="seed" type="text" maxlength="32" spellcheck="false" autocomplete="off" autocapitalize="off" />
-          <button id="seedRandom" class="word">Shuffle</button>
+        <div class="field">
+          <label class="label" for="seed">Seed <i>same seed, same maze</i></label>
+          <div class="seedrow">
+            <input id="seed" type="text" maxlength="32" spellcheck="false" autocomplete="off" autocapitalize="off" />
+            <button id="seedRandom" class="word">Shuffle</button>
+          </div>
         </div>
       </div>
 
-      <button id="play" class="cta facet">
-        <span>Play</span>
-        <svg viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6" /></svg>
-      </button>
-      <button id="share" class="word quiet">Copy share link</button>
+      <div class="menu-actions">
+        <button id="play" class="cta facet">
+          <span>Play</span>
+          <svg viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6" /></svg>
+        </button>
+        <button id="share" class="word quiet">Copy share link</button>
+      </div>
     </section>
 
     <aside id="settings" class="panel facet" hidden>

@@ -38,7 +38,7 @@ export class Trail {
   private hot = new THREE.Color(0xff3d8b);
   private hottest = new THREE.Color(0xffd60a);
 
-  constructor() {
+  constructor(style: TrailStyle) {
     const tileMat = new THREE.MeshBasicMaterial({
       transparent: true,
       opacity: 0.85,
@@ -56,7 +56,7 @@ export class Trail {
       mesh.setColorAt(0, this.c.setRGB(0, 0, 0));
       this.group.add(mesh);
     }
-    this.setStyle('slide');
+    this.setStyle(style);
   }
 
   /** 記録済みの手数 */

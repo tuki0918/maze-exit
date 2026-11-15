@@ -53,11 +53,11 @@ function randomSeed(): string {
 }
 
 function loadSettings(): Settings {
-  const def: Settings = { style: 'glass', gfx: 'standard', trail: 'slide', difficulty: 'easy', rail: true, recent: 8, sound: true };
+  const def: Settings = { style: 'glass', gfx: 'standard', trail: 'line', difficulty: 'easy', rail: true, recent: 8, sound: true };
   try {
     const s: Settings = { ...def, ...JSON.parse(localStorage.getItem('ll:settings') ?? '{}') };
     if (s.gfx !== 'dot') s.gfx = 'standard';
-    if (s.trail !== 'line') s.trail = 'slide';
+    if (s.trail !== 'line' && s.trail !== 'slide') s.trail = def.trail;
     if (s.difficulty !== 'normal') s.difficulty = 'easy';
     return s;
   } catch {
@@ -103,7 +103,7 @@ const camera = new THREE.PerspectiveCamera(35, 1, 0.1, 800);
 const rig = new THREE.Group(); // これを回す = 迷路を回す
 scene.add(rig);
 const liquid = new Liquid();
-const trail = new Trail();
+const trail = new Trail(settings.trail);
 const guide = new Guide();
 const locator = new Locator();
 rig.add(liquid.group, trail.group, guide.mesh, locator.group);
@@ -478,22 +478,28 @@ function fitCamera(): void {
   camera.updateProjectionMatrix();
 }
 
+function resizeMaze(): void {
+  const w = canvas.clientWidth;
+  const h = canvas.clientHeight;
+  renderer.setSize(w, h, false);
+  camera.aspect = w / h;
+  if (maze) fitCamera();
+}
+
 function applyGfx(): void {
   const w = window.innerWidth;
   const h = window.innerHeight;
   const ratio = settings.gfx === 'dot' ? Math.max(0.2, 300 / Math.min(w, h)) * 0.6 : Math.min(window.devicePixelRatio, 2);
   canvas.classList.toggle('pixel', settings.gfx === 'dot');
   renderer.setPixelRatio(ratio);
-  renderer.setSize(w, h, false);
+  resizeMaze();
   bgCanvas.classList.toggle('pixel', settings.gfx === 'dot');
   bgRenderer.setPixelRatio(ratio);
   bgRenderer.setSize(w, h, false);
   bgCamera.aspect = w / h;
   bgCamera.updateProjectionMatrix();
-  camera.aspect = w / h;
   backdrop.resize(w / h);
   liquid.setMode(settings.gfx === 'dot' ? 'dot' : 'fluid');
-  if (maze) fitCamera();
 }
 
 let toastTimer = 0;
@@ -638,13 +644,14 @@ function syncRail(): void {
 }
 
 function showMenu(open: boolean): void {
+  const changed = menuOpen !== open;
   menuOpen = open;
   $('menu').hidden = !open;
   $('hint').hidden = open;
   $('scrim').hidden = !open;
-  syncRail();
   if (open) $('settings').hidden = true;
   syncRail();
+  if (changed) resizeMaze();
 }
 
 function initUi(): void {
@@ -685,7 +692,6 @@ function initUi(): void {
   setSeg('style', settings.style);
   setSeg('trail', settings.trail);
   setSeg('gfx', settings.gfx);
-  trail.setStyle(settings.trail);
   trail.recent = settings.recent;
   recent.value = String(settings.recent);
   $('recentOut').textContent = String(settings.recent);
