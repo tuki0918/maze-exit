@@ -1,0 +1,9 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`generateMaze > シードの値が固定されている（環境間の再現性チェック用） 1`] = `
+[
+  26,
+  5,
+  48,
+]
+`;

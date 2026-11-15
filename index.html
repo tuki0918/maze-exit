@@ -1,0 +1,113 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <title>Liquid Labyrinth</title>
+    <link rel="stylesheet" href="/src/style.css" />
+  </head>
+  <body>
+    <canvas id="c"></canvas>
+
+    <header id="hud">
+      <div class="brand">
+        <h1>LIQUID LABYRINTH</h1>
+        <div id="info"></div>
+      </div>
+      <div class="clock">
+        <div id="timer">00:00.00</div>
+        <div id="moves">0 手</div>
+      </div>
+      <nav class="buttons">
+        <button id="btnRestart" title="同じ迷路をやり直す (R)">↻</button>
+        <button id="btnNew" title="新しい迷路 (N)">🎲</button>
+        <button id="btnSettings" title="設定 (Esc)">⚙</button>
+      </nav>
+    </header>
+
+    <div id="hint">ドラッグで迷路を回す ・ Shift+ドラッグ / Q・E でひねる ・ ホイールでズーム</div>
+
+    <aside id="settings" class="panel" hidden>
+      <h2>迷路</h2>
+      <label>シード
+        <span class="row">
+          <input id="seed" type="text" maxlength="32" spellcheck="false" autocomplete="off" />
+          <button id="seedRandom" title="ランダム">🎲</button>
+        </span>
+      </label>
+      <label>サイズ
+        <select id="size">
+          <option value="5">5 × 5 × 5（入門）</option>
+          <option value="7">7 × 7 × 7</option>
+          <option value="9">9 × 9 × 9</option>
+          <option value="11">11 × 11 × 11</option>
+          <option value="13">13 × 13 × 13（難しい）</option>
+        </select>
+      </label>
+      <label>形状
+        <select id="shape">
+          <option value="cube">立方体</option>
+          <option value="sphere">球</option>
+          <option value="diamond">ダイヤ</option>
+        </select>
+      </label>
+      <button id="apply" class="primary">この迷路で開始</button>
+      <button id="share">共有 URL をコピー</button>
+
+      <h2>表示</h2>
+      <label>迷路の外観
+        <select id="style">
+          <option value="glass">半透明ガラス</option>
+          <option value="frost">白いすりガラス（難）</option>
+          <option value="xray">透明＋通路の骨格（易）</option>
+        </select>
+      </label>
+      <label>グラフィック
+        <select id="gfx">
+          <option value="dot">ドット調（軽い）</option>
+          <option value="standard">標準</option>
+          <option value="high">高品質（発光）</option>
+        </select>
+      </label>
+      <label>強調する直近の手数 <output id="recentOut"></output>
+        <input id="recent" type="range" min="1" max="40" step="1" />
+      </label>
+      <label class="check"><input id="sound" type="checkbox" /> 効果音</label>
+      <button id="closeSettings">閉じる</button>
+    </aside>
+
+    <section id="result" class="panel" hidden>
+      <div class="badge" id="record" hidden>NEW RECORD</div>
+      <h2>脱出成功</h2>
+      <div class="big" id="resTime"></div>
+      <dl>
+        <dt>手数</dt><dd id="resMoves"></dd>
+        <dt>最短</dt><dd id="resShortest"></dd>
+        <dt>自己ベスト</dt><dd id="resBest"></dd>
+        <dt>シード</dt><dd id="resSeed"></dd>
+      </dl>
+      <button id="resReplay" class="primary">通ったルートを鑑賞</button>
+      <div class="row">
+        <button id="resRetry">もう一度</button>
+        <button id="resNext">次の迷路</button>
+        <button id="resShare">共有</button>
+      </div>
+    </section>
+
+    <footer id="replay" class="panel" hidden>
+      <button id="repPlay">▶</button>
+      <input id="repSeek" type="range" min="0" max="1" step="1" value="0" />
+      <span id="repPos"></span>
+      <select id="repSpeed">
+        <option value="0.5">×0.5</option>
+        <option value="1" selected>×1</option>
+        <option value="2">×2</option>
+        <option value="4">×4</option>
+      </select>
+      <button id="repBack">結果に戻る</button>
+    </footer>
+
+    <div id="toast" hidden></div>
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>
