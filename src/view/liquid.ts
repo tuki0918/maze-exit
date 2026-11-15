@@ -63,9 +63,9 @@ export class Liquid {
           vec3 n = normalize(cross(dFdx(vView), dFdy(vView)));
           vec3 v = normalize(-vView);
           float f = pow(1.0 - abs(dot(n, v)), 2.2);
-          vec3 deep = vec3(0.03, 0.30, 0.85);
-          vec3 mid = vec3(0.10, 0.74, 1.0);
-          vec3 rim = vec3(0.86, 1.0, 1.0);
+          vec3 deep = vec3(0.0, 0.26, 0.95);
+          vec3 mid = vec3(0.05, 0.62, 1.0);
+          vec3 rim = vec3(1.0);
           vec3 col = mix(deep, mid, smoothstep(-0.35, 0.35, vH));
           col = mix(col, rim, f);
           vec3 l = normalize(vec3(0.4, 0.8, 0.6));
@@ -73,7 +73,10 @@ export class Liquid {
           gl_FragColor = vec4(col, 1.0);
         }`,
     });
-    this.blob = new THREE.Mesh(new THREE.IcosahedronGeometry(0.4, 12), mat);
+    this.blob = new THREE.Mesh(new THREE.IcosahedronGeometry(0.4, 4), mat);
+    // 軌跡（深度テストなし）より後に描く
+    mat.transparent = true;
+    this.blob.renderOrder = 9;
 
     const half = (DOT_N - 1) / 2;
     for (let x = 0; x < DOT_N; x++)
@@ -84,18 +87,19 @@ export class Liquid {
         }
     this.dots = new THREE.InstancedMesh(
       new THREE.BoxGeometry(DOT_SIZE, DOT_SIZE, DOT_SIZE),
-      new THREE.MeshBasicMaterial(),
+      new THREE.MeshBasicMaterial({ transparent: true }),
       this.dotBase.length,
     );
+    this.dots.renderOrder = 9;
     this.dots.frustumCulled = false;
     const col = new THREE.Color();
     this.dotBase.forEach((b, i) => {
       // ドット絵風に 3 階調 + 市松のディザ
       const shade = (Math.round(b.x / DOT_SIZE + b.y / DOT_SIZE + b.z / DOT_SIZE + 99) % 2) * 0.08;
       const r = b.length() / 0.41;
-      if (r > 0.82) col.setRGB(0.55 + shade, 0.95, 1.0);
-      else if (r > 0.5) col.setRGB(0.1, 0.66 + shade, 1.0);
-      else col.setRGB(0.04, 0.36 + shade, 0.9);
+      if (r > 0.82) col.setRGB(0.85 + shade, 1.0, 1.0);
+      else if (r > 0.5) col.setRGB(0.02, 0.4 + shade, 1.0);
+      else col.setRGB(0.0, 0.14 + shade, 0.85);
       this.dots.setColorAt(i, col);
     });
     this.dots.visible = false;

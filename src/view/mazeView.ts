@@ -38,27 +38,27 @@ function geom(positions: number[]): THREE.BufferGeometry {
 
 const STYLES: Record<Style, { shell: number; shellColor: number; edge: number; wallBase: number; wallBoost: number; skeleton: number }> = {
   // 半透明ガラス: 内壁がうっすら見える
-  glass: { shell: 0.07, shellColor: 0xffffff, edge: 0.55, wallBase: 0.03, wallBoost: 0.2, skeleton: 0 },
+  glass: { shell: 0.13, shellColor: 0xffffff, edge: 0.95, wallBase: 0.05, wallBoost: 0.3, skeleton: 0 },
   // すりガラス（白）: 内部構造は液体の近くしか見えない
-  frost: { shell: 0.34, shellColor: 0xeaf2ff, edge: 0.8, wallBase: 0, wallBoost: 0.16, skeleton: 0 },
+  frost: { shell: 0.5, shellColor: 0xffffff, edge: 1, wallBase: 0, wallBoost: 0.2, skeleton: 0 },
   // 透明: 通路の骨格が線で見える（やさしい）
-  xray: { shell: 0.025, shellColor: 0xffffff, edge: 0.35, wallBase: 0, wallBoost: 0.22, skeleton: 0.3 },
+  xray: { shell: 0.05, shellColor: 0xffffff, edge: 0.7, wallBase: 0, wallBoost: 0.24, skeleton: 0.6 },
 };
 
 export class MazeView {
   readonly group = new THREE.Group();
   private shellMat = new THREE.MeshBasicMaterial({ transparent: true, depthWrite: false, side: THREE.DoubleSide });
-  private edgeMat = new THREE.LineBasicMaterial({ color: 0xcfe4ff, transparent: true, depthWrite: false });
-  private skelMat = new THREE.LineBasicMaterial({ color: 0x8fb4ff, transparent: true, depthWrite: false });
+  private edgeMat = new THREE.LineBasicMaterial({ color: 0xffffff, transparent: true, depthWrite: false });
+  private skelMat = new THREE.LineBasicMaterial({ color: 0xffffff, transparent: true, depthWrite: false });
   private wallMat: THREE.ShaderMaterial;
   private exitMat = new THREE.MeshBasicMaterial({
-    color: 0xffd166,
+    color: 0xffd60a,
     transparent: true,
     depthWrite: false,
+    depthTest: false,
     side: THREE.DoubleSide,
-    blending: THREE.AdditiveBlending,
   });
-  private exitLineMat = new THREE.LineBasicMaterial({ color: 0xffe29a, transparent: true, depthTest: false });
+  private exitLineMat = new THREE.LineBasicMaterial({ color: 0xffffff, transparent: true, depthTest: false });
   private skeleton: THREE.LineSegments;
   private disposables: { dispose(): void }[] = [];
   readonly exitPos = new THREE.Vector3();
@@ -103,7 +103,7 @@ export class MazeView {
         uLiquid: { value: new THREE.Vector3() },
         uBase: { value: 0.03 },
         uBoost: { value: 0.3 },
-        uColor: { value: new THREE.Color(0xdcebff) },
+        uColor: { value: new THREE.Color(0xffffff) },
       },
       vertexShader: /* glsl */ `
         varying vec3 vPos;
@@ -145,15 +145,13 @@ export class MazeView {
       const c = faceCorners(p, maze.exitDir, s);
       for (let i = 0; i < 4; i++) framePts.push(...c[i], ...c[(i + 1) % 4]);
     }
-    const e = this.exitPos;
-    framePts.push(e.x, e.y, e.z, e.x + dir[0] * 1.4, e.y + dir[1] * 1.4, e.z + dir[2] * 1.4);
     const frameGeo = geom(framePts);
     const frame = new THREE.LineSegments(frameGeo, this.exitLineMat);
     frame.renderOrder = 7;
 
     // 開始マーカー
     const startGeo = new THREE.EdgesGeometry(new THREE.BoxGeometry(0.96, 0.96, 0.96));
-    const startMat = new THREE.LineBasicMaterial({ color: 0x7fe8ff, transparent: true, opacity: 0.45, depthWrite: false });
+    const startMat = new THREE.LineBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.9, depthWrite: false });
     const startBox = new THREE.LineSegments(startGeo, startMat);
     cellPos(maze, maze.start, startBox.position);
 
@@ -177,7 +175,7 @@ export class MazeView {
   update(time: number, liquidPos: THREE.Vector3, flash: number): void {
     (this.wallMat.uniforms.uLiquid.value as THREE.Vector3).copy(liquidPos);
     const pulse = 0.5 + 0.5 * Math.sin(time * 3.2);
-    this.exitMat.opacity = 0.22 + 0.25 * pulse + flash;
+    this.exitMat.opacity = Math.min(1, 0.55 + 0.3 * pulse + flash);
     this.exitLineMat.opacity = 0.7 + 0.3 * pulse;
   }
 

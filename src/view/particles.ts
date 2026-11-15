@@ -15,13 +15,13 @@ export class Particles {
   private geo = new THREE.BufferGeometry();
 
   constructor() {
+    this.pos.fill(1e6); // 未使用の粒は画面外に置いておく
     this.geo.setAttribute('position', new THREE.BufferAttribute(this.pos, 3));
     this.geo.setAttribute('color', new THREE.BufferAttribute(this.col, 3));
     const mat = new THREE.PointsMaterial({
-      size: 0.16,
+      size: 0.22,
       vertexColors: true,
       transparent: true,
-      blending: THREE.AdditiveBlending,
       depthWrite: false,
       depthTest: false,
       sizeAttenuation: true,
@@ -46,7 +46,7 @@ export class Particles {
       this.pos[i * 3] = origin.x;
       this.pos[i * 3 + 1] = origin.y;
       this.pos[i * 3 + 2] = origin.z;
-      const k = 0.6 + Math.random() * 0.4;
+      const k = 1;
       this.base[i * 3] = color.r * k;
       this.base[i * 3 + 1] = color.g * k;
       this.base[i * 3 + 2] = color.b * k;
@@ -58,12 +58,13 @@ export class Particles {
     for (let i = 0; i < MAX; i++) {
       if (this.life[i] <= 0) continue;
       this.life[i] -= dt;
-      const k = Math.max(0, this.life[i] / this.maxLife[i]);
       this.vel[i * 3 + 1] -= 9 * dt;
       for (let j = 0; j < 3; j++) {
         this.pos[i * 3 + j] += this.vel[i * 3 + j] * dt;
-        this.col[i * 3 + j] = this.base[i * 3 + j] * k;
+        this.col[i * 3 + j] = this.base[i * 3 + j];
       }
+      // 紙吹雪のように色はそのまま、寿命が来たら画面外へ
+      if (this.life[i] <= 0) this.pos[i * 3 + 1] = 1e6;
     }
     this.geo.attributes.position.needsUpdate = true;
     this.geo.attributes.color.needsUpdate = true;
