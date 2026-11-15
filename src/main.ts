@@ -466,7 +466,7 @@ function fitCamera(): void {
   const aspect = camera.aspect;
   const radius = maze.n * (cfg.shape === 'cube' ? 0.87 : 0.62) + 0.8;
   const half = THREE.MathUtils.degToRad(camera.fov / 2);
-  const dist = radius / Math.sin(half) / Math.min(1, aspect * 0.95);
+  const dist = radius / Math.sin(half) / Math.min(0.82, aspect * 0.8);
   baseDist = dist;
   camera.position.set(0, 0, dist * controls.zoom);
   camera.updateProjectionMatrix();

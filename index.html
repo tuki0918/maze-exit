@@ -19,8 +19,6 @@
 
     <header id="hud">
       <div id="timer" aria-label="Elapsed time"></div>
-      <div id="moves">0 moves</div>
-      <div id="info"></div>
     </header>
 
     <div id="hint">
@@ -41,20 +39,25 @@
       <button id="repBack" class="word">Done</button>
     </footer>
 
+    <div id="status">
+      <div id="moves">0 moves</div>
+      <div id="info"></div>
+    </div>
+
     <nav id="toolbar" class="dock facet">
-      <button id="btnRestart">
+      <button id="btnRestart" title="Restart (R)">
         <svg viewBox="0 0 24 24"><path d="M4.5 12a7.5 7.5 0 1 0 2.4-5.5" /><path d="M4.5 4.5v4.8h4.8" /></svg>
         <span>Restart</span>
       </button>
-      <button id="btnNew">
+      <button id="btnNew" title="New maze (N)">
         <svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14" /></svg>
         <span>New</span>
       </button>
-      <button id="btnMenu">
+      <button id="btnMenu" title="Mazes (Esc)">
         <svg viewBox="0 0 24 24"><path d="M12 3.5 20 8v8l-8 4.5L4 16V8z" /><path d="M4 8l8 4.5L20 8M12 12.5v8" /></svg>
         <span>Mazes</span>
       </button>
-      <button id="btnSettings">
+      <button id="btnSettings" title="Display">
         <svg viewBox="0 0 24 24"><path d="M4 8h8M18 8h2M4 16h2M12 16h8" /><path d="M15 5.5 17.5 8 15 10.5 12.5 8zM9 13.5l2.5 2.5L9 18.5 6.5 16z" /></svg>
         <span>Display</span>
       </button>

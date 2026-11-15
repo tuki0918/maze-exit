@@ -1,6 +1,6 @@
 /*
  * Liquid Labyrinth の UI 言語「Facet」
- *  - 面:   白い板の右上を斜めに切り落とす（ローポリの面取り）。ぼかしや丸い影は使わない
+ *  - 面:   白い板の右上を斜めに切り落とす（ローポリの面取り）。影・ぼかし・グラデーションなしのフラットな塗り
  *  - 選択: 選んだマスに下から「液体」が満ちる
  *  - 文字: Outfit。ラベルは小さな大文字、数字は細く大きく
  *  - 色:   インク（濃紺）+ 白 + 液体の青。黄色は出口と「進む」ボタンだけ
@@ -65,8 +65,8 @@ body {
 .facet {
   --cut: 16px;
   --bg: var(--paper);
+  /* 斜めの切り落としを作るための指定。見た目は単色のベタ塗り */
   background: linear-gradient(225deg, transparent var(--cut), var(--bg) 0);
-  filter: drop-shadow(0 10px 18px rgba(0, 55, 105, 0.22));
 }
 
 /* ---- text --------------------------------------------------------------- */
@@ -143,8 +143,7 @@ svg {
   font-weight: 700;
   letter-spacing: 0.2em;
   text-transform: uppercase;
-  filter: drop-shadow(0 6px 0 rgba(10, 37, 64, 0.14));
-  transition: transform 0.12s var(--ease), filter 0.12s;
+  transition: transform 0.12s var(--ease);
 }
 
 .cta svg {
@@ -156,8 +155,7 @@ svg {
 }
 
 .cta:active {
-  transform: translateY(4px);
-  filter: drop-shadow(0 2px 0 rgba(10, 37, 64, 0.14));
+  transform: scale(0.98);
 }
 
 .btn {
@@ -168,7 +166,6 @@ svg {
   font-weight: 600;
   letter-spacing: 0.14em;
   text-transform: uppercase;
-  filter: none;
   transition: transform 0.12s var(--ease);
 }
 
@@ -226,7 +223,7 @@ svg {
   position: absolute;
   inset: 0;
   z-index: -1;
-  background: linear-gradient(var(--liquid-hi), var(--liquid));
+  background: var(--liquid);
   transform: translateY(101%);
   transition: transform 0.38s var(--ease);
 }
@@ -317,9 +314,25 @@ input[type='range']::-moz-range-thumb {
   opacity: 0.7;
 }
 
+/* 迷路の下: 手数とモード */
+#status {
+  position: fixed;
+  inset: auto 0 calc(20px + var(--safe-b)) 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
+  color: #fff;
+  text-shadow: 0 1px 10px rgba(0, 70, 130, 0.35);
+  pointer-events: none;
+}
+
+#replay:not([hidden]) ~ #status {
+  display: none;
+}
+
 #moves {
-  margin-top: 6px;
-  font-size: 13px;
+  font-size: 15px;
   font-weight: 600;
   letter-spacing: 0.2em;
   text-transform: uppercase;
@@ -337,10 +350,10 @@ input[type='range']::-moz-range-thumb {
 #hint {
   position: fixed;
   left: 50%;
-  bottom: calc(100px + var(--safe-b));
+  bottom: calc(86px + var(--safe-b));
   transform: translateX(-50%);
   width: max-content;
-  max-width: calc(100vw - 40px);
+  max-width: calc(100vw - 150px);
   display: flex;
   flex-direction: column;
   gap: 4px;
@@ -376,9 +389,21 @@ input[type='range']::-moz-range-thumb {
   z-index: 5;
 }
 
+/* オプションは右端に縦に並べる（スマホは右下、広い画面は右中央） */
+#toolbar {
+  left: auto;
+  right: calc(12px + env(safe-area-inset-right, 0px));
+  transform: none;
+  flex-direction: column;
+}
+
+#toolbar span {
+  display: none;
+}
+
 #toolbar button {
-  width: 76px;
-  min-height: 62px;
+  width: 52px;
+  min-height: 52px;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -393,7 +418,7 @@ input[type='range']::-moz-range-thumb {
 }
 
 #toolbar button + button {
-  box-shadow: -1px 0 0 var(--line);
+  box-shadow: 0 -1px 0 var(--line);
 }
 
 #toolbar button:hover {
@@ -688,6 +713,28 @@ input[type='range']::-moz-range-thumb {
 
 /* ---- 広い画面: パネルを中央に置く --------------------------------------- */
 
+@media (min-width: 700px) {
+  #toolbar {
+    top: 50%;
+    bottom: auto;
+    right: 20px;
+    transform: translateY(-50%);
+  }
+
+  #toolbar span {
+    display: block;
+  }
+
+  #toolbar button {
+    width: 76px;
+    min-height: 66px;
+  }
+
+  #hint {
+    max-width: calc(100vw - 240px);
+  }
+}
+
 @media (min-width: 700px) and (min-height: 700px) {
   .panel {
     inset: 50% auto auto 50%;
@@ -703,12 +750,6 @@ input[type='range']::-moz-range-thumb {
       opacity: 0;
       transform: translate(-50%, calc(-50% + 30px));
     }
-  }
-}
-
-@media (max-width: 350px) {
-  #toolbar button {
-    width: 68px;
   }
 }
 
