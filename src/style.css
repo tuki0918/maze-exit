@@ -390,11 +390,58 @@ input[type='range']::-moz-range-thumb {
 }
 
 /* オプションは右端に縦に並べる（スマホは右下、広い画面は右中央） */
-#toolbar {
-  left: auto;
+#side {
+  position: fixed;
   right: calc(12px + env(safe-area-inset-right, 0px));
-  transform: none;
+  bottom: calc(16px + var(--safe-b));
+  display: flex;
   flex-direction: column;
+  align-items: flex-end;
+  gap: 8px;
+  z-index: 5;
+  pointer-events: none;
+}
+
+#side > * {
+  pointer-events: auto;
+}
+
+#toolbar {
+  --cut: 12px;
+  display: flex;
+  flex-direction: column;
+  transition: transform 0.4s var(--ease), opacity 0.25s, visibility 0s;
+}
+
+/* しまう: オプションを右の画面外へ送り、つまみだけ残す */
+#side.collapsed #toolbar {
+  transform: translateX(calc(100% + 40px));
+  opacity: 0;
+  visibility: hidden;
+  transition: transform 0.4s var(--ease), opacity 0.25s, visibility 0s 0.4s;
+}
+
+#railToggle {
+  --cut: 8px;
+  width: 36px;
+  height: 36px;
+  display: grid;
+  place-items: center;
+  color: var(--ink);
+}
+
+#railToggle svg {
+  width: 18px;
+  height: 18px;
+  transition: transform 0.4s var(--ease);
+}
+
+#side.collapsed #railToggle svg {
+  transform: rotate(180deg);
+}
+
+#railToggle:active {
+  opacity: 0.6;
 }
 
 #toolbar span {
@@ -436,7 +483,7 @@ input[type='range']::-moz-range-thumb {
   padding: 0 18px;
 }
 
-#replay:not([hidden]) ~ #toolbar {
+#replay:not([hidden]) ~ #side {
   display: none;
 }
 
@@ -714,7 +761,7 @@ input[type='range']::-moz-range-thumb {
 /* ---- 広い画面: パネルを中央に置く --------------------------------------- */
 
 @media (min-width: 700px) {
-  #toolbar {
+  #side {
     top: 50%;
     bottom: auto;
     right: 20px;

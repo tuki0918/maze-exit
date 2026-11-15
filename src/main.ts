@@ -3,6 +3,7 @@ import * as THREE from 'three';
 import { Sfx } from './audio';
 import { Controls } from './controls';
 import { DIRS, generateMaze, type Maze, type Shape } from './maze';
+import { Backdrop } from './view/backdrop';
 import { Guide } from './view/guide';
 import { Liquid } from './view/liquid';
 import { Locator } from './view/locator';
@@ -23,6 +24,8 @@ interface Settings {
   gfx: Gfx;
   trail: TrailStyle;
   difficulty: Difficulty;
+  /** 右端のオプションを出しているか */
+  rail: boolean;
   recent: number;
   sound: boolean;
 }
@@ -50,7 +53,7 @@ function randomSeed(): string {
 }
 
 function loadSettings(): Settings {
-  const def: Settings = { style: 'glass', gfx: 'standard', trail: 'slide', difficulty: 'easy', recent: 8, sound: true };
+  const def: Settings = { style: 'glass', gfx: 'standard', trail: 'slide', difficulty: 'easy', rail: true, recent: 8, sound: true };
   try {
     const s: Settings = { ...def, ...JSON.parse(localStorage.getItem('ll:settings') ?? '{}') };
     if (s.gfx !== 'dot') s.gfx = 'standard';
@@ -107,27 +110,14 @@ rig.add(liquid.group, trail.group, guide.mesh, locator.group);
 const particles = new Particles();
 scene.add(particles.points);
 
-// 背景に浮かぶ白いローポリ（迷路より奥に置く）
-const decor = new THREE.Group();
-scene.add(decor);
+// 背景（三角形の面 + 結晶）。カメラに固定するので迷路を回しても動かない
 scene.add(new THREE.HemisphereLight(0xffffff, 0x4fd0f5, 2.2));
 const sun = new THREE.DirectionalLight(0xffffff, 1.4);
 sun.position.set(1, 2, 3);
 scene.add(sun);
-{
-  const geos = [new THREE.TetrahedronGeometry(1), new THREE.OctahedronGeometry(1), new THREE.IcosahedronGeometry(1, 0)];
-  const mat = new THREE.MeshLambertMaterial({ color: 0xffffff, flatShading: true, transparent: true, opacity: 0.6 });
-  for (let i = 0; i < 30; i++) {
-    const mesh = new THREE.Mesh(geos[i % geos.length], mat);
-    const a = Math.random() * Math.PI * 2;
-    const r = 0.35 + Math.random() * 0.65;
-    mesh.position.set(Math.cos(a) * r, Math.sin(a) * r, -0.4 - Math.random());
-    mesh.scale.setScalar(0.03 + Math.random() * 0.07);
-    mesh.rotation.set(Math.random() * 6, Math.random() * 6, Math.random() * 6);
-    mesh.userData.spin = new THREE.Vector3(Math.random() - 0.5, Math.random() - 0.5, Math.random() - 0.5);
-    decor.add(mesh);
-  }
-}
+const backdrop = new Backdrop(camera.fov);
+camera.add(backdrop.group);
+scene.add(camera);
 
 const controls = new Controls(canvas);
 const sfx = new Sfx();
@@ -480,10 +470,7 @@ function applyGfx(): void {
   renderer.setPixelRatio(ratio);
   renderer.setSize(w, h, false);
   camera.aspect = w / h;
-  // 背景のローポリは画面いっぱいに散らす
-  decor.position.z = -120;
-  const spread = Math.tan(THREE.MathUtils.degToRad(camera.fov / 2)) * 260;
-  decor.scale.set(spread * Math.max(1, w / h), spread, 60);
+  backdrop.resize(w / h);
   liquid.setMode(settings.gfx === 'dot' ? 'dot' : 'fluid');
   if (maze) fitCamera();
 }
@@ -580,12 +567,7 @@ function tick(dt: number): void {
   view?.update(time, pos, flash);
   particles.update(dt);
   guide.update(time);
-  for (const m of decor.children) {
-    const spin = m.userData.spin as THREE.Vector3;
-    m.rotation.x += spin.x * dt * 0.6;
-    m.rotation.y += spin.y * dt * 0.6;
-    m.position.y += Math.sin(time * 0.5 + m.position.x * 9) * dt * 0.01;
-  }
+  backdrop.update(time, dt);
   camera.position.z = baseDist * controls.zoom;
 
   const ts = fmt(elapsed);
@@ -650,6 +632,18 @@ function initUi(): void {
   $('menuClose').onclick = () => showMenu(false);
   $('scrim').onclick = () => showMenu(false);
   $('btnMenu').onclick = () => showMenu(!menuOpen);
+
+  // --- 右端のオプションを横へしまう / 出す ---
+  const setRail = (open: boolean) => {
+    settings.rail = open;
+    $('side').classList.toggle('collapsed', !open);
+    const t = $('railToggle');
+    t.setAttribute('aria-expanded', String(open));
+    t.title = open ? 'Hide menu (M)' : 'Show menu (M)';
+    saveSettings();
+  };
+  setRail(settings.rail !== false);
+  $('railToggle').onclick = () => setRail(!settings.rail);
   $<HTMLInputElement>('seed').addEventListener('keydown', (e) => {
     if (e.key === 'Enter') $('play').click();
   });
@@ -737,6 +731,7 @@ function initUi(): void {
     const k = e.key.toLowerCase();
     if (k === 'r') restart();
     else if (k === 'n') fresh();
+    else if (k === 'm') $('railToggle').click();
     else if (k === 'escape') {
       if (!$('settings').hidden) toggleSettings(false);
       else showMenu(!menuOpen);

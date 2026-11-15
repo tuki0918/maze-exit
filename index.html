@@ -44,7 +44,11 @@
       <div id="info"></div>
     </div>
 
-    <nav id="toolbar" class="dock facet">
+    <div id="side">
+      <button id="railToggle" class="facet" aria-controls="toolbar" aria-expanded="true">
+        <svg viewBox="0 0 24 24"><path d="M9 5l7 7-7 7" /></svg>
+      </button>
+      <nav id="toolbar" class="facet">
       <button id="btnRestart" title="Restart (R)">
         <svg viewBox="0 0 24 24"><path d="M4.5 12a7.5 7.5 0 1 0 2.4-5.5" /><path d="M4.5 4.5v4.8h4.8" /></svg>
         <span>Restart</span>
@@ -61,7 +65,8 @@
         <svg viewBox="0 0 24 24"><path d="M4 8h8M18 8h2M4 16h2M12 16h8" /><path d="M15 5.5 17.5 8 15 10.5 12.5 8zM9 13.5l2.5 2.5L9 18.5 6.5 16z" /></svg>
         <span>Display</span>
       </button>
-    </nav>
+      </nav>
+    </div>
 
     <div id="scrim"></div>
 
